@@ -75,3 +75,6 @@ else
     echo "Creating branch '$branch_name' from main..."
     git checkout -b "$branch_name" main
 fi
+
+# Step 7: Export the MRP_TASK environment variable
+export MRP_TASK="$task_name"
