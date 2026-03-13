@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TASKS_DIR="$HOME/.augment/tasks"
+ARCHIVE_DIR="$HOME/.augment/archived-tasks"
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <task_name>"
+    exit 1
+fi
+
+task_name="$1"
+task_dir="$TASKS_DIR/$task_name"
+archive_dest="$ARCHIVE_DIR/$task_name"
+branch_name="markp/$task_name"
+
+# Show what will happen
+echo "This will:"
+echo "  - Archive task directory: $task_dir -> $archive_dest"
+echo "  - Switch to main branch"
+echo "  - Delete branch: $branch_name"
+echo ""
+read -rp "Are you sure? [y/N]: " confirm
+
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+    echo "Aborted."
+    exit 0
+fi
+
+# Step 1: Archive the task directory
+if [[ -d "$task_dir" ]]; then
+    mkdir -p "$ARCHIVE_DIR"
+    mv "$task_dir" "$archive_dest"
+    echo "Archived task directory: $task_dir -> $archive_dest"
+else
+    echo "Task directory does not exist: $task_dir (skipping)"
+fi
+
+# Step 2: Switch to main branch
+git checkout main
+
+# Step 3: Delete the task branch
+if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
+    git branch -D "$branch_name"
+    echo "Deleted branch: $branch_name"
+else
+    echo "Branch does not exist: $branch_name (skipping)"
+fi
+
+echo ""
+echo "Task '$task_name' archived successfully."
+
