@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
+
+# save shell options
+__old_opts=$(set +o)
+
 set -euo pipefail
 
 TASKS_DIR="$HOME/.augment/tasks"
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 <task_name>"
-    exit 1
+    eval "$__old_opts"
+    unset __old_opts
+    return 1 2>/dev/null || exit 1
 fi
 
 task_name="$1"
@@ -15,7 +21,9 @@ branch_name="markp/$task_name"
 # Step 1: Validate the task directory exists
 if [[ ! -d "$task_dir" ]]; then
     echo "Error: Task directory does not exist: $task_dir"
-    exit 1
+    eval "$__old_opts"
+    unset __old_opts
+    return 1 2>/dev/null || exit 1
 fi
 
 # Step 2: Checkout the task branch
@@ -31,3 +39,6 @@ fi
 
 echo "Switched to task '$task_name'."
 
+# restore shell options
+eval "$__old_opts"
+unset __old_opts
