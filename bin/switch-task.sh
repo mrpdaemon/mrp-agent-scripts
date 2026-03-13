@@ -24,5 +24,10 @@ git checkout "$branch_name"
 # Step 3: Export the MRP_TASK environment variable
 export MRP_TASK="$task_name"
 
+# Step 4: Set tmux window title if running under tmux
+if [[ -n "${TMUX:-}" ]]; then
+    tmux rename-window "$task_name"
+fi
+
 echo "Switched to task '$task_name'."
 

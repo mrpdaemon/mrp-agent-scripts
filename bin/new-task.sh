@@ -78,3 +78,8 @@ fi
 
 # Step 7: Export the MRP_TASK environment variable
 export MRP_TASK="$task_name"
+
+# Step 8: Set tmux window title if running under tmux
+if [[ -n "${TMUX:-}" ]]; then
+    tmux rename-window "$task_name"
+fi
