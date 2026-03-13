@@ -65,3 +65,13 @@ cat "$task_file"
 echo ""
 echo "Task '$task_name' created successfully."
 
+# Step 6: Checkout or create the git branch
+branch_name="markp/$task_name"
+
+if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
+    echo "Branch '$branch_name' already exists. Checking out..."
+    git checkout "$branch_name"
+else
+    echo "Creating branch '$branch_name' from main..."
+    git checkout -b "$branch_name" main
+fi
