@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TASKS_DIR="$HOME/.augment/tasks"
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 <task_name>"
+    exit 1
+fi
+
+task_name="$1"
+task_dir="$TASKS_DIR/$task_name"
+task_file="$task_dir/task.md"
+
+# Step 1: Create the task directory
+mkdir -p "$task_dir"
+
+# Step 2: Handle existing task.md
+if [[ -f "$task_file" ]]; then
+    echo "task.md already exists for '$task_name'."
+    echo ""
+    echo "  1) Overwrite"
+    echo "  2) Append"
+    echo ""
+    read -rp "Choose [1/2]: " choice
+    case "$choice" in
+        1)
+            mode="overwrite"
+            ;;
+        2)
+            mode="append"
+            ;;
+        *)
+            echo "Invalid choice. Aborting."
+            exit 1
+            ;;
+    esac
+else
+    mode="overwrite"
+fi
+
+# Step 3: Open vim for the user to write the description
+tmpfile=$(mktemp /tmp/new-task-XXXXXX.md)
+
+if [[ "$mode" == "append" ]]; then
+    # Pre-populate with existing content so the user can see it
+    cp "$task_file" "$tmpfile"
+fi
+
+vim "$tmpfile"
+
+# Step 4: Write the result
+if [[ "$mode" == "append" ]]; then
+    cp "$tmpfile" "$task_file"
+else
+    cp "$tmpfile" "$task_file"
+fi
+
+rm -f "$tmpfile"
+
+# Step 5: Confirm
+echo ""
+echo "=== $task_file ==="
+cat "$task_file"
+echo ""
+echo "Task '$task_name' created successfully."
+
