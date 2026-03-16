@@ -7,14 +7,17 @@ set -euo pipefail
 
 TASKS_DIR="$MRP_TASKS_DIR"
 
-if [[ $# -ne 1 ]]; then
+if [[ $# -ge 1 ]]; then
+    task_name="$1"
+elif [[ -n "${MRP_TASK:-}" ]]; then
+    task_name="$MRP_TASK"
+else
     echo "Usage: $0 <task_name>"
+    echo "Or set MRP_TASK to use the current task."
     eval "$__old_opts"
     unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
-
-task_name="$1"
 task_dir="$TASKS_DIR/$task_name"
 branch_name="markp/$task_name"
 
