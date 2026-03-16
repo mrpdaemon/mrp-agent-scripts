@@ -7,8 +7,8 @@ set -euo pipefail
 
 TASKS_DIR="$MRP_TASKS_DIR"
 
-if [[ $# -lt 1 ]]; then
-    echo "Usage: $0 <task_name>"
+if [[ $# -lt 1 ]] || [[ -z "${1:-}" ]]; then
+    echo "Usage: new-task <task_name>"
     eval "$__old_opts"
     unset __old_opts
     return 1 2>/dev/null || exit 1
