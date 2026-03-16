@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
+
+# save shell options
+__old_opts=$(set +o)
+
 set -euo pipefail
 
 TASKS_DIR="$MRP_TASKS_DIR"
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 <task_name>"
-    exit 1
+    eval "$__old_opts"
+    unset __old_opts
+    return 1 2>/dev/null || exit 1
 fi
 
 task_name="$1"
@@ -22,7 +28,9 @@ read -rp "Are you sure? [y/N]: " confirm
 
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     echo "Aborted."
-    exit 0
+    eval "$__old_opts"
+    unset __old_opts
+    return 0 2>/dev/null || exit 0
 fi
 
 # Step 1: Delete the task directory
@@ -44,6 +52,18 @@ else
     echo "Branch does not exist: $branch_name (skipping)"
 fi
 
+# Step 4: Clear the MRP_TASK environment variable
+unset MRP_TASK
+
+# Step 5: Rename tmux window if running under tmux
+if [[ -n "${TMUX:-}" ]]; then
+    tmux rename-window "main"
+fi
+
 echo ""
 echo "Task '$task_name' deleted successfully."
+
+# restore shell options
+eval "$__old_opts"
+unset __old_opts
 

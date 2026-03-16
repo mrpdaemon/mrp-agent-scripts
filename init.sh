@@ -55,7 +55,8 @@ vit() {
 }
 
 nt() { source new-task.sh "$1" || true; }
-alias at='archive-task.sh'
-alias dt='delete-task.sh'
+at() { source archive-task.sh "$1" || true; }
+dt() { source delete-task.sh "$1" || true; }
 st() { source switch-task.sh "$1" || true; }
+ct() { source clear-task.sh || true; }
 
