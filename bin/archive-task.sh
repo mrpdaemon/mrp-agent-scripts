@@ -6,7 +6,7 @@ __old_opts=$(set +o)
 set -euo pipefail
 
 TASKS_DIR="$MRP_TASKS_DIR"
-ARCHIVE_DIR="$(dirname "$MRP_TASKS_DIR")/.archived-tasks"
+ARCHIVE_DIR="$MRP_TASKS_DIR/.archived-tasks"
 
 if [[ $# -ge 1 ]]; then
     task_name="$1"
