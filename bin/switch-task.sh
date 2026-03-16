@@ -5,7 +5,7 @@ __old_opts=$(set +o)
 
 set -euo pipefail
 
-TASKS_DIR="$HOME/.augment/tasks"
+TASKS_DIR="$MRP_TASKS_DIR"
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 <task_name>"

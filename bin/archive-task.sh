@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TASKS_DIR="$HOME/.augment/tasks"
-ARCHIVE_DIR="$HOME/.augment/archived-tasks"
+TASKS_DIR="$MRP_TASKS_DIR"
+ARCHIVE_DIR="$(dirname "$MRP_TASKS_DIR")/.archived-tasks"
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 <task_name>"
