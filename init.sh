@@ -55,8 +55,8 @@ vit() {
 }
 
 nt() { source new-task.sh "$1" || true; }
-at() { source archive-task.sh "$1" || true; }
-dt() { source delete-task.sh "$1" || true; }
+at() { source archive-task.sh "$@" || true; }
+dt() { source delete-task.sh "$@" || true; }
 st() { source switch-task.sh "$1" || true; }
 ct() { source clear-task.sh || true; }
 
