@@ -20,7 +20,8 @@ else
     return 1 2>/dev/null || exit 1
 fi
 task_dir="$TASKS_DIR/$task_name"
-archive_dest="$ARCHIVE_DIR/$task_name"
+archive_date=$(date +%Y-%m-%d)
+archive_dest="$ARCHIVE_DIR/${archive_date}-${task_name}"
 branch_name="markp/$task_name"
 
 # Show what will happen
