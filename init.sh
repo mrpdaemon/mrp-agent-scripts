@@ -13,6 +13,7 @@ _MRP_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$_MRP_SCRIPTS_DIR/bin:$PATH"
 
 alias gl='glow -p -w 110'
+alias lst='ls "$MRP_TASKS_DIR"'
 
 glt() {
   local task file
