@@ -13,7 +13,18 @@ _MRP_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$_MRP_SCRIPTS_DIR/bin:$PATH"
 
 alias gl='glow -p -w 110'
-alias lst='ls "$MRP_TASKS_DIR"'
+lst() {
+  if [[ $# -ge 1 ]]; then
+    ls "$MRP_TASKS_DIR/$1/"
+  else
+    ls "$MRP_TASKS_DIR"
+  fi
+}
+
+lstt() {
+  echo "Task directory contents for $MRP_TASK:"
+  ls "$MRP_TASKS_DIR/$MRP_TASK/"
+}
 
 glt() {
   local task file
