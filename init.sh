@@ -72,4 +72,5 @@ dt() { source delete-task.sh "$@" || true; }
 rt() { source rename-task.sh "$@" || true; }
 st() { source switch-task.sh "$1" || true; }
 ct() { source clear-task.sh || true; }
+nlt() { source linear-task.sh "$1" || true; }
 
