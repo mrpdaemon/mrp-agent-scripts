@@ -17,7 +17,7 @@ fi
 issue_id="$1"
 
 # Step 1: Run auggie to create the task from the linear issue
-auggie "/dev-workflow@mrp-auggie-plugins:linear-task $issue_id"
+auggie /dev-workflow--mrp-auggie-plugins:linear-task "$issue_id"
 
 # Step 2: Read the task name from the output file
 task_name_file="/tmp/linear-task-name.md"
