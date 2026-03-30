@@ -12,7 +12,7 @@ _MRP_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export PATH="$_MRP_SCRIPTS_DIR/bin:$PATH"
 
-alias gl='glow -p -w 110'
+alias gl='glow -p -w 120'
 lst() {
   if [[ $# -ge 1 ]]; then
     ls "$MRP_TASKS_DIR/$1/"
