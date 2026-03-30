@@ -43,7 +43,7 @@ glt() {
     return 0
   fi
 
-  glow -p -w 110 "$path" || true
+  glow -p -w 120 "$path" || true
 }
 
 vit() {
