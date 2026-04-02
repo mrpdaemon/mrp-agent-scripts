@@ -70,6 +70,9 @@ if [[ -n "${TMUX:-}" ]]; then
     tmux rename-window "$task_name"
 fi
 
+# Step 7: Clean up temporary file
+rm -f "$task_name_file"
+
 # restore shell options
 eval "$__old_opts"
 unset __old_opts
