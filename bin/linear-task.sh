@@ -5,6 +5,7 @@ __old_opts=$(set +o)
 
 set -euo pipefail
 
+MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
 TASKS_DIR="$MRP_TASKS_DIR"
 
 if [[ $# -lt 1 ]] || [[ -z "${1:-}" ]]; then
@@ -58,8 +59,8 @@ if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
     echo "Branch '$branch_name' already exists. Checking out..."
     git checkout "$branch_name"
 else
-    echo "Creating branch '$branch_name' from main..."
-    git checkout -b "$branch_name" main
+    echo "Creating branch '$branch_name' from $MAIN_BRANCH..."
+    git checkout -b "$branch_name" "$MAIN_BRANCH"
 fi
 
 # Step 5: Export the MRP_TASK environment variable

@@ -12,6 +12,12 @@ source /path/to/mrp-agent-scripts/init.sh
 
 Replace `/path/to/mrp-agent-scripts` with the actual path to this repository.
 
+Optionally, if your repository's default branch is not `main`, set:
+
+```bash
+export MRP_MAIN_BRANCH_NAME="master"  # or whatever your default branch is
+```
+
 ## Scripts
 
 - **`new-task <task_name>`** — Creates a new task: sets up a task directory, opens vim to write a `task.md` description, creates/checks out a `markp/<task_name>` git branch from main, exports `MRP_TASK`, and sets the tmux window title.

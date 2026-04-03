@@ -5,18 +5,20 @@ __old_opts=$(set +o)
 
 set -euo pipefail
 
+MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
+
 # Step 1: Switch to main branch
-git checkout main
+git checkout "$MAIN_BRANCH"
 
 # Step 2: Clear the MRP_TASK environment variable
 unset MRP_TASK
 
 # Step 3: Rename tmux window if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
-    tmux rename-window "main"
+    tmux rename-window "$MAIN_BRANCH"
 fi
 
-echo "Cleared task. Switched to main branch."
+echo "Cleared task. Switched to $MAIN_BRANCH branch."
 
 # restore shell options
 eval "$__old_opts"

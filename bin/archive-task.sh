@@ -5,6 +5,7 @@ __old_opts=$(set +o)
 
 set -euo pipefail
 
+MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
 TASKS_DIR="$MRP_TASKS_DIR"
 ARCHIVE_DIR="$MRP_TASKS_DIR/.archived-tasks"
 
@@ -27,7 +28,7 @@ branch_name="markp/$task_name"
 # Show what will happen
 echo "This will:"
 echo "  - Archive task directory: $task_dir -> $archive_dest"
-echo "  - Switch to main branch"
+echo "  - Switch to $MAIN_BRANCH branch"
 echo "  - Delete branch: $branch_name"
 echo ""
 read -rp "Are you sure? [y/N]: " confirm
@@ -49,7 +50,7 @@ else
 fi
 
 # Step 2: Switch to main branch
-git checkout main
+git checkout "$MAIN_BRANCH"
 
 # Step 3: Delete the task branch
 if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
@@ -64,7 +65,7 @@ unset MRP_TASK
 
 # Step 5: Rename tmux window if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
-    tmux rename-window "main"
+    tmux rename-window "$MAIN_BRANCH"
 fi
 
 echo ""
