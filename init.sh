@@ -74,3 +74,42 @@ st() { source switch-task.sh "$1" || true; }
 ct() { source clear-task.sh || true; }
 nlt() { source linear-task.sh "$1" || true; }
 
+_mrp_complete_task_files() {
+  COMPREPLY=()
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+
+  [[ -z "$MRP_TASKS_DIR" ]] && return 0
+
+  local target_dir entry base
+  if [[ -n "$MRP_TASK" ]]; then
+    [[ $COMP_CWORD -eq 1 ]] || return 0
+    target_dir="$MRP_TASKS_DIR/$MRP_TASK"
+  else
+    if [[ $COMP_CWORD -eq 1 ]]; then
+      for entry in "$MRP_TASKS_DIR"/*/; do
+        [[ -d "$entry" ]] || continue
+        base="${entry%/}"
+        base="${base##*/}"
+        if [[ -z "$cur" || "$base" == "$cur"* ]]; then
+          COMPREPLY+=( "$base" )
+        fi
+      done
+      return 0
+    elif [[ $COMP_CWORD -eq 2 ]]; then
+      target_dir="$MRP_TASKS_DIR/${COMP_WORDS[1]}"
+    else
+      return 0
+    fi
+  fi
+
+  [[ -d "$target_dir" ]] || return 0
+  for entry in "$target_dir"/*; do
+    [[ -e "$entry" ]] || continue
+    base="${entry##*/}"
+    if [[ -z "$cur" || "$base" == "$cur"* ]]; then
+      COMPREPLY+=( "$base" )
+    fi
+  done
+}
+
+complete -o filenames -F _mrp_complete_task_files glt vit
