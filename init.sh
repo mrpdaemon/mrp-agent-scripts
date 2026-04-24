@@ -66,6 +66,26 @@ vit() {
   vim "$path" || true
 }
 
+rmt() {
+  local task file
+
+  if [[ -n "$MRP_TASK" ]]; then
+    task="$MRP_TASK"
+    file="$1"
+  else
+    task="$1"
+    file="$2"
+  fi
+
+  local path="$MRP_TASKS_DIR/$task/$file"
+  if [[ ! -f "$path" ]]; then
+    echo "File not found: $path" >&2
+    return 0
+  fi
+
+  rm "$path" || true
+}
+
 nt() { source new-task.sh "$1" || true; }
 at() { source archive-task.sh "$@" || true; }
 dt() { source delete-task.sh "$@" || true; }
@@ -112,4 +132,4 @@ _mrp_complete_task_files() {
   done
 }
 
-complete -o filenames -F _mrp_complete_task_files glt vit
+complete -o filenames -F _mrp_complete_task_files glt vit rmt
