@@ -66,7 +66,7 @@ vit() {
     return 0
   fi
 
-  vim "$path" || true
+  vi "$path" || true
 }
 
 rmt() {
