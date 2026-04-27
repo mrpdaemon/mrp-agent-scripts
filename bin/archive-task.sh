@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# save shell options
-__old_opts=$(set +o)
-
 set -euo pipefail
 
 MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
@@ -16,8 +13,6 @@ elif [[ -n "${MRP_TASK:-}" ]]; then
 else
     echo "Usage: $0 <task_name>"
     echo "Or set MRP_TASK to use the current task."
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 task_dir="$TASKS_DIR/$task_name"
@@ -35,8 +30,6 @@ read -rp "Are you sure? [y/N]: " confirm
 
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     echo "Aborted."
-    eval "$__old_opts"
-    unset __old_opts
     return 0 2>/dev/null || exit 0
 fi
 
@@ -70,8 +63,4 @@ fi
 
 echo ""
 echo "Task '$task_name' archived successfully."
-
-# restore shell options
-eval "$__old_opts"
-unset __old_opts
 

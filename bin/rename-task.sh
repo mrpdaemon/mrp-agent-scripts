@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# save shell options
-__old_opts=$(set +o)
-
 set -euo pipefail
 
 TASKS_DIR="$MRP_TASKS_DIR"
@@ -13,8 +10,6 @@ if [[ $# -eq 2 ]]; then
 elif [[ $# -eq 1 ]]; then
     if [[ -z "${MRP_TASK:-}" ]]; then
         echo "Error: MRP_TASK is not set. Provide both from-name and to-name, or switch to a task first."
-        eval "$__old_opts"
-        unset __old_opts
         return 1 2>/dev/null || exit 1
     fi
     from_name="$MRP_TASK"
@@ -22,8 +17,6 @@ elif [[ $# -eq 1 ]]; then
 else
     echo "Usage: $0 <to-name>          (renames current task)"
     echo "       $0 <from-name> <to-name>"
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
@@ -35,32 +28,24 @@ to_branch="markp/$to_name"
 # Validate source task directory exists
 if [[ ! -d "$from_dir" ]]; then
     echo "Error: Task directory does not exist: $from_dir"
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
 # Validate destination doesn't already exist
 if [[ -d "$to_dir" ]]; then
     echo "Error: Task directory already exists: $to_dir"
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
 # Validate source branch exists
 if ! git rev-parse --verify "$from_branch" >/dev/null 2>&1; then
     echo "Error: Branch does not exist: $from_branch"
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
 # Validate destination branch doesn't already exist
 if git rev-parse --verify "$to_branch" >/dev/null 2>&1; then
     echo "Error: Branch already exists: $to_branch"
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
@@ -74,8 +59,6 @@ read -rp "Are you sure? [y/N]: " confirm
 
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     echo "Aborted."
-    eval "$__old_opts"
-    unset __old_opts
     return 0 2>/dev/null || exit 0
 fi
 
@@ -100,8 +83,4 @@ fi
 
 echo ""
 echo "Task '$from_name' renamed to '$to_name' successfully."
-
-# restore shell options
-eval "$__old_opts"
-unset __old_opts
 

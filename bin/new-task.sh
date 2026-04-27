@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# save shell options
-__old_opts=$(set +o)
-
 set -euo pipefail
 
 MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
@@ -10,8 +7,6 @@ TASKS_DIR="$MRP_TASKS_DIR"
 
 if [[ $# -lt 1 ]] || [[ -z "${1:-}" ]]; then
     echo "Usage: new-task <task_name>"
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
@@ -39,8 +34,6 @@ if [[ -f "$task_file" ]]; then
             ;;
         *)
             echo "Invalid choice. Aborting."
-            eval "$__old_opts"
-            unset __old_opts
             return 1 2>/dev/null || exit 1
             ;;
     esac
@@ -92,7 +85,3 @@ export MRP_TASK="$task_name"
 if [[ -n "${TMUX:-}" ]]; then
     tmux rename-window "$task_name"
 fi
-
-# restore shell options
-eval "$__old_opts"
-unset __old_opts

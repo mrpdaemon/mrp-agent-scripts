@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# save shell options
-__old_opts=$(set +o)
-
 set -euo pipefail
 
 MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
@@ -19,8 +16,4 @@ if [[ -n "${TMUX:-}" ]]; then
 fi
 
 echo "Cleared task. Switched to $MAIN_BRANCH branch."
-
-# restore shell options
-eval "$__old_opts"
-unset __old_opts
 

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# save shell options
-__old_opts=$(set +o)
-
 set -euo pipefail
 
 MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
@@ -10,8 +7,6 @@ TASKS_DIR="$MRP_TASKS_DIR"
 
 if [[ $# -lt 1 ]] || [[ -z "${1:-}" ]]; then
     echo "Usage: linear-task <issue-id>"
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
@@ -24,8 +19,6 @@ auggie /dev-workflow--mrp-auggie-plugins:linear-task "$issue_id"
 task_name_file="/tmp/linear-task-name.md"
 if [[ ! -f "$task_name_file" ]]; then
     echo "Error: $task_name_file not found. auggie may have failed."
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
@@ -37,15 +30,11 @@ task_file="$task_dir/task.md"
 
 if [[ ! -d "$task_dir" ]]; then
     echo "Error: Task directory '$task_dir' does not exist."
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
 if [[ ! -f "$task_file" ]]; then
     echo "Error: Task file '$task_file' does not exist."
-    eval "$__old_opts"
-    unset __old_opts
     return 1 2>/dev/null || exit 1
 fi
 
@@ -73,8 +62,4 @@ fi
 
 # Step 7: Clean up temporary file
 rm -f "$task_name_file"
-
-# restore shell options
-eval "$__old_opts"
-unset __old_opts
 

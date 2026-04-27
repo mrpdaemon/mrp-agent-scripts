@@ -89,13 +89,13 @@ rmt() {
   rm "$path" || true
 }
 
-nt() { source new-task.sh "$1" || true; }
-at() { source archive-task.sh "$@" || true; }
-dt() { source delete-task.sh "$@" || true; }
-rt() { source rename-task.sh "$@" || true; }
-st() { source switch-task.sh "$1" || true; }
-ct() { source clear-task.sh || true; }
-nlt() { source linear-task.sh "$1" || true; }
+nt()  { local -; source new-task.sh    "$1"  || true; }
+at()  { local -; source archive-task.sh "$@" || true; }
+dt()  { local -; source delete-task.sh  "$@" || true; }
+rt()  { local -; source rename-task.sh  "$@" || true; }
+st()  { local -; source switch-task.sh  "$1" || true; }
+ct()  { local -; source clear-task.sh         || true; }
+nlt() { local -; source linear-task.sh  "$1" || true; }
 
 _mrp_complete_task_files() {
   COMPREPLY=()
