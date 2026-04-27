@@ -135,4 +135,23 @@ _mrp_complete_task_files() {
   done
 }
 
+_mrp_complete_task_names() {
+  COMPREPLY=()
+  [[ $COMP_CWORD -eq 1 ]] || return 0
+  [[ -z "$MRP_TASKS_DIR" ]] && return 0
+
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  local entry base
+  for entry in "$MRP_TASKS_DIR"/*/; do
+    [[ -d "$entry" ]] || continue
+    base="${entry%/}"
+    base="${base##*/}"
+    [[ "$base" == ".archived-tasks" ]] && continue
+    if [[ -z "$cur" || "$base" == "$cur"* ]]; then
+      COMPREPLY+=( "$base" )
+    fi
+  done
+}
+
 complete -o filenames -F _mrp_complete_task_files glt vit rmt
+complete -o filenames -F _mrp_complete_task_names st rt dt at
