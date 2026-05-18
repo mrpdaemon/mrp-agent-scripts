@@ -13,6 +13,33 @@ _MRP_SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$_MRP_SCRIPTS_DIR/bin:$PATH"
 
 alias gl='glow -p -w 120'
+
+tasks() {
+  if [[ -z "${MRP_TASKS_DIR:-}" ]]; then
+    echo "MRP_TASKS_DIR is not set." >&2
+    return 1
+  fi
+
+  local entry base prefix
+  for entry in "$MRP_TASKS_DIR"/*/; do
+    [[ -d "$entry" ]] || continue
+    base="${entry%/}"
+    base="${base##*/}"
+    [[ "$base" == ".archived-tasks" ]] && continue
+
+    if [[ -n "$MRP_TASK" ]]; then
+      if [[ "$base" == "$MRP_TASK" ]]; then
+        prefix="(*) "
+      else
+        prefix="    "
+      fi
+      echo "${prefix}${base}"
+    else
+      echo "$base"
+    fi
+  done
+}
+
 lst() {
   if [[ -z "${MRP_TASKS_DIR:-}" ]]; then
     echo "MRP_TASKS_DIR is not set." >&2
