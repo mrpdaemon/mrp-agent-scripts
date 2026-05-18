@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
 TASKS_DIR="$MRP_TASKS_DIR"
 
 if [[ $# -lt 1 ]] || [[ -z "${1:-}" ]]; then
@@ -12,7 +11,7 @@ fi
 
 issue_id="$1"
 
-project=$(_mrp_resolve_project) || { return 1 2>/dev/null || exit 1; }
+_mrp_resolve_context || { return 1 2>/dev/null || exit 1; }
 
 # Step 1: Run auggie to create the task from the linear issue
 auggie /dev-workflow--mrp-auggie-plugins:linear-task "$issue_id"
@@ -27,7 +26,7 @@ fi
 task_name=$(cat "$task_name_file")
 
 # Step 3: Verify the task directory and task.md exist
-task_dir="$TASKS_DIR/$project/$task_name"
+task_dir="$TASKS_DIR/$MRP_PROJECT/$task_name"
 task_file="$task_dir/task.md"
 
 if [[ ! -d "$task_dir" ]]; then
@@ -50,13 +49,13 @@ if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
     echo "Branch '$branch_name' already exists. Checking out..."
     git checkout "$branch_name"
 else
-    echo "Creating branch '$branch_name' from $MAIN_BRANCH..."
-    git checkout -b "$branch_name" "$MAIN_BRANCH"
+    echo "Creating branch '$branch_name' from $MRP_MAIN_BRANCH_NAME..."
+    git checkout -b "$branch_name" "$MRP_MAIN_BRANCH_NAME"
 fi
 
-# Step 5: Export the MRP_TASK and MRP_PROJECT environment variables
+# Step 5: Export the MRP_TASK environment variable
+# (MRP_PROJECT and MRP_MAIN_BRANCH_NAME are exported by _mrp_resolve_context)
 export MRP_TASK="$task_name"
-export MRP_PROJECT="$project"
 
 # Step 6: Set tmux window title if running under tmux
 if [[ -n "${TMUX:-}" ]]; then

@@ -20,33 +20,59 @@ _mrp_project_for_repo() {
   [[ -r "$map_file" ]] || return 1
   local line
   while IFS= read -r line; do
-    [[ "$line" =~ ^[[:space:]]*\"([^\"]+)\"[[:space:]]*,[[:space:]]*\"([^\"]+)\"[[:space:]]*$ ]] || continue
+    [[ "$line" =~ ^[[:space:]]*\"([^\"]+)\"[[:space:]]*,[[:space:]]*\"([^\"]+)\"[[:space:]]*,[[:space:]]*\"([^\"]+)\"[[:space:]]*$ ]] || continue
     if [[ "${BASH_REMATCH[1]}" == "$repo_path" ]]; then
-      echo "${BASH_REMATCH[2]}"
+      echo "${BASH_REMATCH[2]}|${BASH_REMATCH[3]}"
       return 0
     fi
   done < "$map_file"
   return 1
 }
 
-_mrp_resolve_project() {
-  if [[ -n "${MRP_PROJECT:-}" ]]; then
-    echo "$MRP_PROJECT"
+_mrp_main_branch_for_project() {
+  local project="$1"
+  local map_file="$HOME/.mrp-project-map"
+  [[ -r "$map_file" ]] || return 1
+  local line
+  while IFS= read -r line; do
+    [[ "$line" =~ ^[[:space:]]*\"([^\"]+)\"[[:space:]]*,[[:space:]]*\"([^\"]+)\"[[:space:]]*,[[:space:]]*\"([^\"]+)\"[[:space:]]*$ ]] || continue
+    if [[ "${BASH_REMATCH[2]}" == "$project" ]]; then
+      echo "${BASH_REMATCH[3]}"
+      return 0
+    fi
+  done < "$map_file"
+  return 1
+}
+
+_mrp_resolve_context() {
+  if [[ -n "${MRP_PROJECT:-}" && -n "${MRP_MAIN_BRANCH_NAME:-}" ]]; then
     return 0
   fi
+
+  if [[ -n "${MRP_PROJECT:-}" ]]; then
+    local main_branch
+    main_branch=$(_mrp_main_branch_for_project "$MRP_PROJECT") || {
+      echo "Error: project '$MRP_PROJECT' is not in ~/.mrp-project-map." >&2
+      return 1
+    }
+    export MRP_MAIN_BRANCH_NAME="$main_branch"
+    return 0
+  fi
+
   local repo_path
   repo_path=$(git rev-parse --show-toplevel 2>/dev/null) || {
     echo "Error: not in a git repo and MRP_PROJECT is not set." >&2
     echo "Run from inside a mapped repo, or set MRP_PROJECT." >&2
     return 1
   }
-  local project
-  project=$(_mrp_project_for_repo "$repo_path") || {
+  local info
+  info=$(_mrp_project_for_repo "$repo_path") || {
     echo "Error: repo '$repo_path' is not in ~/.mrp-project-map." >&2
-    echo "Add a line like: \"$repo_path\", \"<project_name>\"" >&2
+    echo "Add a line like: \"$repo_path\", \"<project_name>\", \"<main_branch>\"" >&2
     return 1
   }
-  echo "$project"
+  export MRP_PROJECT="${info%%|*}"
+  export MRP_MAIN_BRANCH_NAME="${info##*|}"
 }
 
 tasks() {
@@ -55,11 +81,10 @@ tasks() {
     return 1
   fi
 
-  local project
-  project=$(_mrp_resolve_project) || return 1
+  _mrp_resolve_context || return 1
 
   local entry base prefix
-  for entry in "$MRP_TASKS_DIR/$project"/*/; do
+  for entry in "$MRP_TASKS_DIR/$MRP_PROJECT"/*/; do
     [[ -d "$entry" ]] || continue
     base="${entry%/}"
     base="${base##*/}"
@@ -83,16 +108,15 @@ lst() {
     return 1
   fi
 
-  local project
-  project=$(_mrp_resolve_project) || return 1
+  _mrp_resolve_context || return 1
 
   if [[ -n "$MRP_TASK" ]]; then
     echo "Task directory contents for $MRP_TASK:"
-    ls "$MRP_TASKS_DIR/$project/$MRP_TASK/"
+    ls "$MRP_TASKS_DIR/$MRP_PROJECT/$MRP_TASK/"
   elif [[ $# -ge 1 ]]; then
-    ls "$MRP_TASKS_DIR/$project/$1/"
+    ls "$MRP_TASKS_DIR/$MRP_PROJECT/$1/"
   else
-    ls "$MRP_TASKS_DIR/$project/"
+    ls "$MRP_TASKS_DIR/$MRP_PROJECT/"
   fi
 }
 
@@ -107,10 +131,9 @@ glt() {
     file="$2"
   fi
 
-  local project
-  project=$(_mrp_resolve_project) || return 1
+  _mrp_resolve_context || return 1
 
-  local path="$MRP_TASKS_DIR/$project/$task/$file"
+  local path="$MRP_TASKS_DIR/$MRP_PROJECT/$task/$file"
   if [[ ! -f "$path" ]]; then
     echo "File not found: $path" >&2
     return 0
@@ -130,10 +153,9 @@ vit() {
     file="$2"
   fi
 
-  local project
-  project=$(_mrp_resolve_project) || return 1
+  _mrp_resolve_context || return 1
 
-  local task_dir="$MRP_TASKS_DIR/$project/$task"
+  local task_dir="$MRP_TASKS_DIR/$MRP_PROJECT/$task"
   local path="$task_dir/$file"
   if [[ ! -f "$path" && ! -d "$task_dir" ]]; then
     echo "Task not found: $task_dir" >&2
@@ -154,10 +176,9 @@ rmt() {
     file="$2"
   fi
 
-  local project
-  project=$(_mrp_resolve_project) || return 1
+  _mrp_resolve_context || return 1
 
-  local path="$MRP_TASKS_DIR/$project/$task/$file"
+  local path="$MRP_TASKS_DIR/$MRP_PROJECT/$task/$file"
   if [[ ! -f "$path" ]]; then
     echo "File not found: $path" >&2
     return 0
@@ -180,16 +201,15 @@ _mrp_complete_task_files() {
 
   [[ -z "$MRP_TASKS_DIR" ]] && return 0
 
-  local project
-  project=$(_mrp_resolve_project 2>/dev/null) || return 0
+  _mrp_resolve_context 2>/dev/null || return 0
 
   local target_dir entry base
   if [[ -n "$MRP_TASK" ]]; then
     [[ $COMP_CWORD -eq 1 ]] || return 0
-    target_dir="$MRP_TASKS_DIR/$project/$MRP_TASK"
+    target_dir="$MRP_TASKS_DIR/$MRP_PROJECT/$MRP_TASK"
   else
     if [[ $COMP_CWORD -eq 1 ]]; then
-      for entry in "$MRP_TASKS_DIR/$project"/*/; do
+      for entry in "$MRP_TASKS_DIR/$MRP_PROJECT"/*/; do
         [[ -d "$entry" ]] || continue
         base="${entry%/}"
         base="${base##*/}"
@@ -199,7 +219,7 @@ _mrp_complete_task_files() {
       done
       return 0
     elif [[ $COMP_CWORD -eq 2 ]]; then
-      target_dir="$MRP_TASKS_DIR/$project/${COMP_WORDS[1]}"
+      target_dir="$MRP_TASKS_DIR/$MRP_PROJECT/${COMP_WORDS[1]}"
     else
       return 0
     fi
@@ -220,12 +240,11 @@ _mrp_complete_task_names() {
   [[ $COMP_CWORD -eq 1 ]] || return 0
   [[ -z "$MRP_TASKS_DIR" ]] && return 0
 
-  local project
-  project=$(_mrp_resolve_project 2>/dev/null) || return 0
+  _mrp_resolve_context 2>/dev/null || return 0
 
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local entry base
-  for entry in "$MRP_TASKS_DIR/$project"/*/; do
+  for entry in "$MRP_TASKS_DIR/$MRP_PROJECT"/*/; do
     [[ -d "$entry" ]] || continue
     base="${entry%/}"
     base="${base##*/}"

@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-MAIN_BRANCH="${MRP_MAIN_BRANCH_NAME:-main}"
 TASKS_DIR="$MRP_TASKS_DIR"
 ARCHIVE_DIR="$MRP_TASKS_DIR/.archived-tasks"
 
@@ -15,17 +14,17 @@ else
     echo "Or set MRP_TASK to use the current task."
     return 1 2>/dev/null || exit 1
 fi
-project=$(_mrp_resolve_project) || { return 1 2>/dev/null || exit 1; }
+_mrp_resolve_context || { return 1 2>/dev/null || exit 1; }
 
-task_dir="$TASKS_DIR/$project/$task_name"
+task_dir="$TASKS_DIR/$MRP_PROJECT/$task_name"
 archive_date=$(date +%Y-%m-%d)
-archive_dest="$ARCHIVE_DIR/${archive_date}-${project}-${task_name}"
+archive_dest="$ARCHIVE_DIR/${archive_date}-${MRP_PROJECT}-${task_name}"
 branch_name="markp/$task_name"
 
 # Show what will happen
 echo "This will:"
 echo "  - Archive task directory: $task_dir -> $archive_dest"
-echo "  - Switch to $MAIN_BRANCH branch"
+echo "  - Switch to $MRP_MAIN_BRANCH_NAME branch"
 echo "  - Delete branch: $branch_name"
 echo ""
 read -rp "Are you sure? [y/N]: " confirm
@@ -45,7 +44,7 @@ else
 fi
 
 # Step 2: Switch to main branch
-git checkout "$MAIN_BRANCH"
+git checkout "$MRP_MAIN_BRANCH_NAME"
 
 # Step 3: Delete the task branch
 if git rev-parse --verify "$branch_name" >/dev/null 2>&1; then
@@ -60,7 +59,7 @@ unset MRP_TASK
 
 # Step 5: Rename tmux window if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
-    tmux rename-window "$project:$MAIN_BRANCH"
+    tmux rename-window "$MRP_PROJECT:$MRP_MAIN_BRANCH_NAME"
 fi
 
 echo ""

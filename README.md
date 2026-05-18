@@ -12,28 +12,24 @@ source /path/to/mrp-agent-scripts/init.sh
 
 Replace `/path/to/mrp-agent-scripts` with the actual path to this repository.
 
-Optionally, if your repository's default branch is not `main`, set:
-
-```bash
-export MRP_MAIN_BRANCH_NAME="master"  # or whatever your default branch is
-```
-
 ### Project map
 
-Active task directories are organized per-project: `$MRP_TASKS_DIR/<project>/<task>/`. The mapping from repo path to project name is configured in `~/.mrp-project-map`, one entry per line as quoted CSV. Multiple repo paths (e.g. git worktrees) can map to the same project name:
+Active task directories are organized per-project: `$MRP_TASKS_DIR/<project>/<task>/`. The mapping from repo path to project name and main branch name is configured in `~/.mrp-project-map`, one entry per line as a triple of quoted CSV atoms. Multiple repo paths (e.g. git worktrees) can map to the same project name:
 
 ```
-# "repo_path", "project_name"
-"/home/mark/Code/mrp-agent-scripts", "agent-scripts"
-"/home/mark/Code/worktrees/mrp-feature", "agent-scripts"
-"/home/mark/Code/photo-pipeline", "photos"
+# "repo_path", "project_name", "main_branch_name"
+"/home/mark/Code/mrp-agent-scripts", "agent-scripts", "main"
+"/home/mark/Code/worktrees/mrp-feature", "agent-scripts", "main"
+"/home/mark/Code/photo-pipeline", "photos", "master"
 ```
+
+The third atom declares the project's main branch — the branch new task branches are forked from and the branch the task commands switch back to on clear/archive/delete. Each project can have a different value (e.g. `main` for newer repos, `master` for older ones).
 
 Task commands resolve the project from `MRP_PROJECT` if set, otherwise from `git rev-parse --show-toplevel` of the current directory looked up in the map. Running a task command from an unmapped repo (with `MRP_PROJECT` unset) is an error — add the repo to `~/.mrp-project-map` first.
 
 ## Scripts
 
-All task-creation and task-selection scripts (`new-task`, `linear-task`, `switch-task`) resolve the project from the current repo via `~/.mrp-project-map` and export `MRP_PROJECT` alongside `MRP_TASK`. `MRP_PROJECT` represents your current project context and persists across task-clearing/archiving/deletion — it stays set until you explicitly `unset` it or `cd` to a different repo (where it'll be re-resolved when needed).
+All task-creation and task-selection scripts (`new-task`, `linear-task`, `switch-task`) resolve the project from the current repo via `~/.mrp-project-map` and export `MRP_PROJECT` and `MRP_MAIN_BRANCH_NAME` alongside `MRP_TASK`. `MRP_PROJECT` represents your current project context and persists across task-clearing/archiving/deletion — it stays set until you explicitly `unset` it or `cd` to a different repo (where it'll be re-resolved when needed). `MRP_MAIN_BRANCH_NAME` is exported alongside `MRP_PROJECT` so downstream workflow tooling can read it.
 
 - **`new-task <task_name>`** — Creates a new task: sets up `$MRP_TASKS_DIR/<project>/<task_name>/`, opens vim to write a `task.md` description, creates/checks out a `markp/<task_name>` git branch from main, exports `MRP_TASK` and `MRP_PROJECT`, and sets the tmux window title.
 - **`switch-task <task_name>`** — Switches to an existing task in the current project by checking out its git branch, exporting `MRP_TASK` and `MRP_PROJECT`, and updating the tmux window title.

@@ -20,10 +20,10 @@ else
     return 1 2>/dev/null || exit 1
 fi
 
-project=$(_mrp_resolve_project) || { return 1 2>/dev/null || exit 1; }
+_mrp_resolve_context || { return 1 2>/dev/null || exit 1; }
 
-from_dir="$TASKS_DIR/$project/$from_name"
-to_dir="$TASKS_DIR/$project/$to_name"
+from_dir="$TASKS_DIR/$MRP_PROJECT/$from_name"
+to_dir="$TASKS_DIR/$MRP_PROJECT/$to_name"
 from_branch="markp/$from_name"
 to_branch="markp/$to_name"
 
@@ -80,7 +80,7 @@ export MRP_TASK="$to_name"
 
 # Step 5: Rename tmux window if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
-    tmux rename-window "$project:$to_name"
+    tmux rename-window "$MRP_PROJECT:$to_name"
 fi
 
 echo ""
