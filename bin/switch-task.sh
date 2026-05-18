@@ -31,7 +31,7 @@ export MRP_PROJECT="$project"
 
 # Step 4: Set tmux window title if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
-    tmux rename-window "$task_name"
+    tmux rename-window "$project:$task_name"
 fi
 
 echo "Switched to task '$task_name'."

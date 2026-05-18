@@ -80,7 +80,7 @@ export MRP_TASK="$to_name"
 
 # Step 5: Rename tmux window if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
-    tmux rename-window "$to_name"
+    tmux rename-window "$project:$to_name"
 fi
 
 echo ""

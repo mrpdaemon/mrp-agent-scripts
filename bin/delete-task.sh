@@ -56,7 +56,7 @@ unset MRP_TASK
 
 # Step 5: Rename tmux window if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
-    tmux rename-window "$MAIN_BRANCH"
+    tmux rename-window "$project:$MAIN_BRANCH"
 fi
 
 echo ""
