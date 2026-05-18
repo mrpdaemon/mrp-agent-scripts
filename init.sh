@@ -61,8 +61,8 @@ vit() {
   fi
 
   local path="$MRP_TASKS_DIR/$task/$file"
-  if [[ ! -f "$path" ]]; then
-    echo "File not found: $path" >&2
+  if [[ ! -f "$path" && ! -d "$MRP_TASKS_DIR/$task" ]]; then
+    echo "Task not found: $MRP_TASKS_DIR/$task" >&2
     return 0
   fi
 
