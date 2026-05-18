@@ -14,7 +14,9 @@ else
     echo "Or set MRP_TASK to use the current task."
     return 1 2>/dev/null || exit 1
 fi
-task_dir="$TASKS_DIR/$task_name"
+project=$(_mrp_resolve_project) || { return 1 2>/dev/null || exit 1; }
+
+task_dir="$TASKS_DIR/$project/$task_name"
 branch_name="markp/$task_name"
 
 # Show what will be deleted

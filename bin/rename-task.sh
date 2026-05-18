@@ -20,8 +20,10 @@ else
     return 1 2>/dev/null || exit 1
 fi
 
-from_dir="$TASKS_DIR/$from_name"
-to_dir="$TASKS_DIR/$to_name"
+project=$(_mrp_resolve_project) || { return 1 2>/dev/null || exit 1; }
+
+from_dir="$TASKS_DIR/$project/$from_name"
+to_dir="$TASKS_DIR/$project/$to_name"
 from_branch="markp/$from_name"
 to_branch="markp/$to_name"
 

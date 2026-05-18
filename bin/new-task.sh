@@ -11,7 +11,10 @@ if [[ $# -lt 1 ]] || [[ -z "${1:-}" ]]; then
 fi
 
 task_name="$1"
-task_dir="$TASKS_DIR/$task_name"
+
+project=$(_mrp_resolve_project) || { return 1 2>/dev/null || exit 1; }
+
+task_dir="$TASKS_DIR/$project/$task_name"
 task_file="$task_dir/task.md"
 
 # Step 1: Create the task directory
@@ -41,7 +44,7 @@ else
     mode="overwrite"
 fi
 
-# Step 3: Open vim for the user to write the description
+# Step 3: Open vi for the user to write the description
 tmpfile=$(mktemp /tmp/new-task-XXXXXX.md)
 
 if [[ "$mode" == "append" ]]; then
@@ -49,7 +52,7 @@ if [[ "$mode" == "append" ]]; then
     cp "$task_file" "$tmpfile"
 fi
 
-vim "$tmpfile"
+vi "$tmpfile"
 
 # Step 4: Write the result
 if [[ "$mode" == "append" ]]; then
@@ -78,8 +81,9 @@ else
     git checkout -b "$branch_name" "$MAIN_BRANCH"
 fi
 
-# Step 7: Export the MRP_TASK environment variable
+# Step 7: Export the MRP_TASK and MRP_PROJECT environment variables
 export MRP_TASK="$task_name"
+export MRP_PROJECT="$project"
 
 # Step 8: Set tmux window title if running under tmux
 if [[ -n "${TMUX:-}" ]]; then
